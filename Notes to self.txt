@@ -1,0 +1,91 @@
+Server commands, in binary messages.
+  First byte is command ID.
+  
+  Server Commands:
+    Echo the rest of the payload.
+    Room list, return room count, for each room return name size && name
+    Join room specified by the rest of the payload.
+    Register with a token payload, if token exists, login.
+      tokens are 7 bytes of data.
+    Set display color, 3Hex
+    Get user id, if no payload, returns yours.
+    Set display name to payload,
+      if registered, adds name to lock list and token account.
+    Make room with payload name, room Name for parent (they see all of this room, cmd owner must be OP of target room! useful for subrooms: mainRoom.subRoom)
+    friend UID
+    unfriend UID
+    UID is on, returns room or offline
+*can't use offline for room name!
+    Make temp room
+    whisper UID, payload, if UID==subroom, say in public there.
+    Buzz UID, they get 36+your UID. client can toast, chat msg, noticon, vibrate... no UID buzzes current room.
+    get UID from display name
+    get display name from UID
+    leave, server kills this connection, (join null to leave room only)
+    Away, ghost mode
+    List Serv Admins
+    Add RUID to serv admins
+    rm UID from serv admins
+    map, lists rooms with users in the rooms
+    ignore UID, boolean
+    list commands
+      return cmds.length, for each,
+        return name, discription,
+          codeType(info getter, requires client compliance,
+          info setter(# of args && named args),
+          action, simple(whisper, self, txt), ...)
+  127: use next two bytes as cmd
+  128: reserved for Serv uses(games)
+  255: 127++128;
+    
+    
+    
+  Room Commands
+    User list, return user count,
+      for each user return name size && name && user ID.
+    Kick UID
+    Ban UID
+    UnBan UID
+    OP registered-UID
+    DeOP UID
+    Give ownership to RUID
+    Owner
+    list OPs
+    Make SubRoom
+    delete room
+    motd = payload
+    action, colours entire payload as UID.Colour && broadcast as txt
+    Mute UID, Minutes
+    Registered Users Only Chat
+    Lock room, payload==password, nothing unlocks
+    Make Group, name, prepend, append, colour, parent group
+    List Groups and basic info
+    List detailed info of group name
+    Group can use, name, CMDid
+*Auto gen groups Guest && Default (non-guest users) && OP
+    Group can't use, name, CMDid
+    Silence guests, if payload, group name
+    RM Group, ignores Guest && Default
+    unSilence guests/group
+    add UID to white-list, no pswd needed for locked rooms
+    custom join msg, 2 strings, prepend && append
+    custom leave msg
+    send payload to users in room
+      CMDid+UID+payload
+    No User Colours, boolean, additional is specific UID
+    show UID instead of display names, boolean:toggle, boolean:only for msgs coming to you.
+    delete post ID
+*add IDs to each broadcast.
+    Hidden room? hide from list rooms
+    group msg, broadcast to members of your group
+      see all group msgs <= your group
+      can target <= your group
+    link external
+    Remember all non guest users? registered only?
+    group slow mode, group, seconds
+    Repeat msg allowed? silently ignore?
+    post file, notify users of name&&size, serv gens file ID, when all answer||timeout, send file
+    file ID, Part, data
+    log room actions to file (save all incomming to file)
+    room joins target room
+*Reformat client msg sending to broadcast, like room, allows us to simply add this room as a user of the other room, cmd.owner must be OP of Both rooms!
